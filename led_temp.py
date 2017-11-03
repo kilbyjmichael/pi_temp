@@ -16,7 +16,38 @@ def light_reset():
     GPIO.output(blue_led,GPIO.LOW)
     GPIO.output(orange_led,GPIO.LOW)
     GPIO.output(red_led,GPIO.LOW)
-
+    
+def blink_light(chosen_light):
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.LOW)
+    time.sleep(0.25)
+    GPIO.output(chosen_light,GPIO.HIGH)
+    
 def main():
     db_filename = 'temp.db'
     connection = sqlite3.connect(db_filename)
@@ -31,20 +62,25 @@ def main():
         try:
             temp = sensor.get_temperature(W1ThermSensor.DEGREES_F)
             print("writing  " + str(temp))
+            if temp < 70.0:
+                chosen_light = blue_led
+            elif temp >= 70.0 and temp <= 75.0:
+                chosen_light = orange_led
+            elif temp > 75.0:
+                chosen_light = red_led
+            else:
+                light_reset()
+                GPIO.output(blue_led,GPIO.HIGH)
+                GPIO.output(orange_led,GPIO.HIGH)
+                GPIO.output(red_led,GPIO.HIGH)
+                
+            light_reset()
+            GPIO.output(chosen_light,GPIO.HIGH)
             cursor.execute("INSERT INTO stephs (time, temp) VALUES (?, ?)", (datetime.now(),temp))
             connection.commit()
-            light_reset()
-            if temp < 70.0:
-                GPIO.output(blue_led,GPIO.HIGH)
-            elif temp >= 70.0 and temp <= 75.0:
-                GPIO.output(orange_led,GPIO.HIGH)
-            elif temp > 75.0:
-                GPIO.output(red_led,GPIO.HIGH)
-            else:
-                GPIO.output(blue_led,GPIO.HIGH)
-                GPIO.output(orange_led,GPIO.HIGH)
-                GPIO.output(red_led,GPIO.HIGH)
-            time.sleep(30)
+
+            time.sleep(2)
+            blink_light(chosen_light)
         except KeyboardInterrupt:
             connection.close()
             GPIO.cleanup()
